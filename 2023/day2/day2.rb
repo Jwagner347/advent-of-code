@@ -15,6 +15,7 @@ def main(f)
   game_data = file.readlines.map(&:chomp)
 
   valid_game_sum = 0
+  power_additions = 0
 
   def draw_is_valid?(totals)
     if totals['red'] <= 12 && totals['green'] <= 13 && totals['blue'] <= 14
@@ -26,6 +27,11 @@ def main(f)
 
   game_data.each do |l|
     game_is_valid = true
+    fewest_game_cubes = {
+      'blue' => 0,
+      'green' => 0,
+      'red' => 0
+    }
 
     if l[6] == ":"
       game_id = l[5]
@@ -52,40 +58,47 @@ def main(f)
         char = d[i]
         next_char = d[i+1]
         previous_char = d[i-1]
-        increment = 0
+        num_cubes = 0
         
         if string_is_integer?(char)
           if string_is_integer?(next_char) and !string_is_integer?(previous_char)
-            increment = d[i..i+1]
+            num_cubes = d[i..i+1]
           else
-            increment = d[i]
+            num_cubes = d[i]
           end
   
           substring = d[i...d.length]
           match_data = substring.match(pattern)
           color = match_data[0]
-          color_totals[color] = increment.to_i
+          if game_id == "3" and color == "green"
+            puts "num_cubes"
+            puts num_cubes
+          end
+          num_cubes = num_cubes.to_i
+          color_totals[color] = num_cubes
+          if fewest_game_cubes[color].to_i < num_cubes
+            fewest_game_cubes[color] = num_cubes
+          end
         end
 
-        if !draw_is_valid?(color_totals)
-          game_is_valid = false
-          break
-        end
       end
 
-      if !game_is_valid
-        break
-      end
     end
 
     if game_is_valid
       valid_game_sum += game_id.to_i
     end
 
+    game_power = fewest_game_cubes.values.inject(1) { |result, v| result * v }
+    power_additions += game_power
+    puts "minimum cubes for game " + game_id
+    puts fewest_game_cubes
 
   end
   puts "valid games sume"
   puts valid_game_sum
+  puts "power_additions:"
+  puts power_additions
 end
 
 main("input.txt")
